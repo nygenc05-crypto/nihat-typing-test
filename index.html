@@ -9,21 +9,45 @@
   body {
     margin: 0;
     font-family: 'Montserrat', sans-serif;
-    background: linear-gradient(120deg, #1f1c2c, #302b63, #0f0c29);
+    background: linear-gradient(135deg, #0f0c29, #302b63, #1f1c2c);
+    overflow: hidden;
+    color: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    color: #fff;
+  }
+
+  /* Animatie achtergrondstrepen */
+  .background-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.05) 2px,
+      transparent 2px,
+      transparent 10px
+    );
+    animation: moveBackground 5s linear infinite;
+    z-index: -1;
+  }
+
+  @keyframes moveBackground {
+    0% {background-position: 0 0;}
+    100% {background-position: 100px 100px;}
   }
 
   .container {
-    background: rgba(0,0,0,0.75);
+    background: rgba(0,0,0,0.8);
     padding: 40px 50px;
     border-radius: 20px;
     width: 95%;
     max-width: 1000px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    box-shadow: 0 0 40px rgba(0,0,0,0.6);
     text-align: center;
     transition: all 0.3s ease-in-out;
   }
@@ -101,10 +125,10 @@
     0% {opacity:0; transform: translateY(-20px);}
     100% {opacity:1; transform: translateY(0);}
   }
-
 </style>
 </head>
 <body>
+<div class="background-animation"></div>
 <div class="container">
   <h1>Typetest van Nihat</h1>
   <div class="text-display" id="textDisplay"></div>
@@ -192,10 +216,13 @@ input.addEventListener('input', () => {
   }
   display.innerHTML = html;
 
-  if(value === currentText){
-    totalTypedWords += currentText.split(' ').length;
+  // Woorden tellen ongeacht fouten
+  totalTypedWords = value.trim().split(/\s+/).length;
+
+  // Automatisch naar volgende zin als je enter of spatie na zin drukt
+  if(value.endsWith(' ')) {
     currentIndex++;
-    if(currentIndex >= texts.length) currentIndex = 0; // start opnieuw
+    if(currentIndex >= texts.length) currentIndex = 0;
     loadText();
   }
 });
