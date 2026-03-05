@@ -2,159 +2,103 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nihat Typetest</title>
-
 <style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1f1c2c, #928dab);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-body{
-font-family: Arial;
-background:#f4f4f4;
-text-align:center;
-padding:40px;
-}
+  .container {
+    background: rgba(0,0,0,0.6);
+    padding: 40px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 800px;
+    text-align: center;
+  }
 
-h1{
-margin-bottom:30px;
-}
+  .text-display {
+    font-size: 1.4rem;
+    line-height: 1.8rem;
+    margin-bottom: 20px;
+  }
 
-#timer{
-font-size:20px;
-margin-bottom:20px;
-}
+  .text-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+  }
 
-#text{
-background:white;
-padding:20px;
-border-radius:8px;
-font-size:22px;
-max-width:800px;
-margin:auto;
-line-height:1.8;
-}
+  .highlight {
+    color: #4caf50;
+  }
 
-.correct{
-color:green;
-}
-
-.wrong{
-color:red;
-}
-
-#input{
-margin-top:20px;
-width:800px;
-height:120px;
-font-size:18px;
-padding:10px;
-}
-
-#results{
-margin-top:20px;
-font-size:20px;
-}
-
-button{
-margin-top:20px;
-padding:10px 20px;
-font-size:16px;
-cursor:pointer;
-}
-
+  .error {
+    color: #ff4c4c;
+  }
 </style>
 </head>
-
 <body>
-
-<h1>Nihat Typetest</h1>
-
-<div id="timer">Tijd: 60</div>
-
-<div id="text"></div>
-
-<textarea id="input" placeholder="Begin met typen..."></textarea>
-
-<div id="results">
-WPM: <span id="wpm">0</span>
+<div class="container">
+  <h1>Typetest van Nihat</h1>
+  <div class="text-display" id="textDisplay"></div>
+  <input type="text" id="textInput" class="text-input" placeholder="Begin met typen..." autofocus>
 </div>
 
-<button onclick="location.reload()">Nieuwe test</button>
-
 <script>
+const texts = [
+  "Dit is een voorbeeldzin voor je typetest.",
+  "Typ snel en nauwkeurig om je score te verbeteren.",
+  "Hier komt nog een zin die je kan typen.",
+  "Blijf oefenen, en probeer langere zinnen tegelijk te typen."
+];
 
-const words = ("dit is een simpele typetest gemaakt door nihat oefen dagelijks om sneller te typen en beter te worden met je toetsenbord snelheid en nauwkeurigheid zijn beide belangrijk tijdens het typen").split(" ");
+let currentIndex = 0;
+let currentText = "";
+const display = document.getElementById('textDisplay');
+const input = document.getElementById('textInput');
 
-const textDiv = document.getElementById("text");
+function loadText() {
+  currentText = texts[currentIndex];
+  display.innerHTML = currentText;
+  input.value = "";
+}
 
-words.forEach(word=>{
-const span = document.createElement("span");
-span.innerText = word + " ";
-textDiv.appendChild(span);
+input.addEventListener('input', () => {
+  const value = input.value;
+  let html = '';
+  for(let i = 0; i < currentText.length; i++){
+    if(i < value.length){
+      if(value[i] === currentText[i]){
+        html += `<span class="highlight">${currentText[i]}</span>`;
+      } else {
+        html += `<span class="error">${currentText[i]}</span>`;
+      }
+    } else {
+      html += currentText[i];
+    }
+  }
+  display.innerHTML = html;
+
+  if(value === currentText){
+    currentIndex++;
+    if(currentIndex >= texts.length) currentIndex = 0;
+    loadText();
+  }
 });
 
-let time = 60;
-let started = false;
-
-const input = document.getElementById("input");
-
-input.addEventListener("input", ()=>{
-
-if(!started){
-started = true;
-startTimer();
-}
-
-const typed = input.value.split(" ");
-const spans = textDiv.querySelectorAll("span");
-
-spans.forEach((span,i)=>{
-span.classList.remove("correct","wrong");
-
-if(typed[i] == null){
-return;
-}
-
-if(typed[i] === words[i]){
-span.classList.add("correct");
-}else{
-span.classList.add("wrong");
-}
-});
-
-});
-
-function startTimer(){
-
-const timer = setInterval(()=>{
-
-time--;
-
-document.getElementById("timer").innerText = "Tijd: " + time;
-
-if(time <= 0){
-
-clearInterval(timer);
-
-calculateWPM();
-
-input.disabled = true;
-
-}
-
-},1000);
-
-}
-
-function calculateWPM(){
-
-const typedWords = input.value.trim().split(" ").length;
-
-const wpm = Math.round(typedWords);
-
-document.getElementById("wpm").innerText = wpm;
-
-}
-
+loadText();
 </script>
-
 </body>
 </html>
