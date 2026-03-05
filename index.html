@@ -26,7 +26,6 @@
     max-width: 1000px;
     box-shadow: 0 0 40px rgba(0,0,0,0.6);
     text-align: center;
-    transition: all 0.3s ease-in-out;
   }
 
   h1 {
@@ -62,7 +61,6 @@
     background: rgba(255,255,255,0.1);
     color: #fff;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    transition: all 0.2s ease;
   }
 
   .text-input:focus {
@@ -121,7 +119,7 @@ const texts = [
   "Voel de snelheid en geniet van het typen",
   "Je kunt beginnen met eenvoudige woorden en doorgroeien",
   "Herhaal de zinnen voor maximale oefening en snelheid",
-  "Focus, snelheid, precisie en doorzettingsvermogen zijn belangrijk",
+  "Focus snelheid precisie en doorzettingsvermogen zijn belangrijk",
   "Typ alles correct en houd het tempo hoog",
   "Laat je niet afleiden en blijf geconcentreerd",
   "Langere zinnen helpen je vingers sneller te bewegen",
@@ -129,13 +127,15 @@ const texts = [
   "Een goede typist blijft rustig onder druk",
   "Probeer consistentie te houden tijdens de test",
   "Blijf oefenen en je zult merken dat je sneller wordt",
-  "Het gaat niet alleen om snelheid, maar ook om precisie",
+  "Het gaat niet alleen om snelheid maar ook om precisie",
   "Je score aan het einde toont hoeveel woorden je per minuut typt",
   "Geniet van het proces en blijf leren tijdens het typen"
 ];
 
 let currentIndex = 0;
+let currentWordIndex = 0;
 let currentText = "";
+let words = [];
 let totalTypedWords = 0;
 let timer = 60;
 let timerInterval = null;
@@ -147,11 +147,14 @@ const scoreboard = document.getElementById('scoreboard');
 
 function loadText() {
   currentText = texts[currentIndex];
+  words = currentText.split(' ');
+  currentWordIndex = 0;
   display.innerHTML = currentText;
   input.value = "";
 }
 
 function startTimer() {
+  if(timerInterval) return;
   timerInterval = setInterval(() => {
     timer--;
     const minutes = String(Math.floor(timer / 60)).padStart(2,'0');
@@ -170,32 +173,38 @@ function endTest() {
   scoreboard.textContent = `Je hebt ${totalTypedWords} woorden per minuut getypt!`;
 }
 
-input.addEventListener('input', () => {
-  if(!timerInterval) startTimer();
+input.addEventListener('input', (e) => {
+  startTimer();
 
   const value = input.value;
-  let html = '';
-  for(let i = 0; i < currentText.length; i++){
+  const currentWord = words[currentWordIndex];
+  let html = "";
+
+  for(let i=0; i<currentText.length; i++){
+    const char = currentText[i];
     if(i < value.length){
-      if(value[i] === currentText[i]){
-        html += `<span class="highlight">${currentText[i]}</span>`;
+      if(value[i] === char){
+        html += `<span class="highlight">${char}</span>`;
       } else {
-        html += `<span class="error">${currentText[i]}</span>`;
+        html += `<span class="error">${char}</span>`;
       }
     } else {
-      html += currentText[i];
+      html += char;
     }
   }
   display.innerHTML = html;
 
-  // Woorden tellen op basis van spaties
-  totalTypedWords = value.trim().split(/\s+/).length;
-
-  // Automatisch naar volgende woord bij spatie
+  // Als spatie gedrukt wordt naar volgend woord
   if(value.endsWith(' ')){
-    currentIndex++;
-    if(currentIndex >= texts.length) currentIndex = 0;
-    loadText();
+    totalTypedWords++;
+    currentWordIndex++;
+    input.value = "";
+    // Als alle woorden in de zin klaar zijn, naar volgende zin
+    if(currentWordIndex >= words.length){
+      currentIndex++;
+      if(currentIndex >= texts.length) currentIndex = 0;
+      loadText();
+    }
   }
 });
 
