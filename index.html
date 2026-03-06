@@ -15,7 +15,6 @@ justify-content:center;
 align-items:center;
 color:white;
 text-align:center;
-
 background-image:url("https://images.unsplash.com/photo-1544551763-46a013bb70d5");
 background-size:cover;
 background-position:center;
@@ -26,6 +25,7 @@ background:rgba(0,0,0,0.65);
 padding:40px;
 border-radius:20px;
 width:850px;
+max-width:90%;
 backdrop-filter:blur(6px);
 box-shadow:0 0 40px rgba(0,0,0,0.8);
 }
@@ -43,13 +43,21 @@ color:#00eaff;
 
 #text{
 font-size:24px;
-line-height:42px;
+line-height:40px;
 margin-bottom:25px;
+
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+
+max-width:100%;
+word-break:break-word;
 }
 
 #text span{
 opacity:0.5;
-margin-right:4px;
+margin:4px 6px;
+white-space:nowrap;
 }
 
 .active{
@@ -87,22 +95,13 @@ animation:glow 1.5s infinite alternate;
 }
 
 @keyframes glow{
-
-from{
-text-shadow:0 0 10px yellow;
-}
-
-to{
-text-shadow:0 0 40px orange;
-}
-
+from{ text-shadow:0 0 10px yellow; }
+to{ text-shadow:0 0 40px orange; }
 }
 
 @keyframes pop{
-
 0%{transform:scale(0.5);opacity:0}
 100%{transform:scale(1);opacity:1}
-
 }
 
 canvas{
@@ -168,14 +167,13 @@ let words=sentences.join(" ").split(" ")
 let index=0
 let time=60
 let timer=null
-
 let correctWords=0
 
 function render(){
 
 textElement.innerHTML=""
 
-let visible=words.slice(index,index+30)
+let visible=words.slice(index,index+40)
 
 visible.forEach((word,i)=>{
 
@@ -183,7 +181,7 @@ let span=document.createElement("span")
 
 span.textContent=word
 
-if(i==0)span.classList.add("active")
+if(i===0) span.classList.add("active")
 
 textElement.appendChild(span)
 
@@ -196,13 +194,10 @@ function startTimer(){
 timer=setInterval(()=>{
 
 time--
-
 timerElement.textContent=time
 
 if(time<=0){
-
 finishTest()
-
 }
 
 },1000)
@@ -216,15 +211,12 @@ if(e.key===" "){
 e.preventDefault()
 
 let typed=input.value.trim()
-
 let spans=textElement.querySelectorAll("span")
-
 let currentWord=words[index]
 
 if(typed===currentWord){
 
 correctWords++
-
 spans[0].classList.add("correct")
 
 }else{
@@ -236,14 +228,12 @@ spans[0].classList.add("wrong")
 index++
 
 if(index>=words.length){
-
 index=0
-
 }
 
 input.value=""
 
-setTimeout(render,150)
+setTimeout(render,120)
 
 }
 
@@ -252,7 +242,6 @@ setTimeout(render,150)
 function finishTest(){
 
 clearInterval(timer)
-
 input.disabled=true
 
 let wpm=correctWords
@@ -292,13 +281,11 @@ function createExplosion(x,y){
 for(let i=0;i<120;i++){
 
 particles.push({
-
 x:x,
 y:y,
 vx:(Math.random()-0.5)*8,
 vy:(Math.random()-0.5)*8,
 life:100
-
 })
 
 }
