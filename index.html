@@ -2,94 +2,84 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nihat Typetest</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 
 body{
+font-family: Arial, sans-serif;
 margin:0;
-font-family:'Montserrat',sans-serif;
-background:url("https://images.unsplash.com/photo-1601758174114-e711c0cbaa69?auto=format&fit=crop&w=2000&q=80") no-repeat center center fixed;
-background-size:cover;
+padding:0;
+height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
 color:white;
+text-align:center;
+
+background-image:url("https://images.unsplash.com/photo-1544551763-46a013bb70d5");
+background-size:cover;
+background-position:center;
 }
 
-.container{
-background:rgba(0,0,0,0.75);
+.overlay{
+background:rgba(0,0,0,0.65);
 padding:40px;
 border-radius:20px;
-width:900px;
-max-width:90%;
-box-shadow:0 0 40px rgba(0,0,0,0.7);
-text-align:center;
+width:800px;
+backdrop-filter:blur(6px);
 }
 
 h1{
-font-family:'Roboto Mono',monospace;
-font-size:2.5rem;
-margin-bottom:25px;
-background:linear-gradient(45deg,#f0a500,#ffdd00);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
+font-size:42px;
+margin-bottom:10px;
 }
 
-.text-display{
-font-family:'Roboto Mono',monospace;
-font-size:1.6rem;
-line-height:2.3rem;
-background:rgba(0,0,0,0.4);
-padding:20px;
-border-radius:12px;
+#timer{
+font-size:26px;
 margin-bottom:20px;
-min-height:120px;
+color:#00eaff;
 }
 
-.text-input{
+#text{
+font-size:24px;
+line-height:40px;
+margin-bottom:25px;
+}
+
+#text span{
+opacity:0.6;
+}
+
+#text .active{
+opacity:1;
+color:white;
+font-weight:bold;
+}
+
+input{
 width:100%;
 padding:15px;
-font-size:1.3rem;
+font-size:20px;
 border-radius:10px;
 border:none;
 outline:none;
-background:rgba(255,255,255,0.1);
-color:white;
 }
 
-.text-input:focus{
-background:rgba(255,255,255,0.2);
-box-shadow:0 0 10px #f0a500;
+.scorebox{
+animation:pop 0.8s ease;
 }
 
-.highlight{
-color:#4caf50;
-font-weight:600;
+@keyframes pop{
+0%{transform:scale(0.5);opacity:0}
+100%{transform:scale(1);opacity:1}
 }
 
-.error{
-color:#ff4c4c;
-font-weight:600;
-}
-
-.timer{
-margin-top:15px;
-font-size:1.4rem;
-font-weight:bold;
-color:#f0a500;
-}
-
-.scoreboard{
-margin-top:25px;
-font-size:2rem;
-font-weight:bold;
-color:#ffdd00;
-display:none;
+canvas{
+position:fixed;
+top:0;
+left:0;
+pointer-events:none;
 }
 
 </style>
@@ -97,160 +87,209 @@ display:none;
 
 <body>
 
-<div class="container">
+<div class="overlay">
 
-<h1>Nihat Typetest</h1>
+<h1>⚡ Nihat Typetest</h1>
 
-<div id="textDisplay" class="text-display"></div>
+<div id="timer">60</div>
 
-<input
-id="textInput"
-class="text-input"
-placeholder="Begin met typen..."
-autocomplete="off"
->
+<div id="text"></div>
 
-<div id="timer" class="timer">01:00</div>
+<input id="input" placeholder="Begin met typen...">
 
-<div id="scoreboard" class="scoreboard"></div>
+<div id="result"></div>
 
 </div>
 
+<canvas id="fireworks"></canvas>
+
 <script>
 
-const texts = [
+const textElement=document.getElementById("text")
+const input=document.getElementById("input")
+const timerElement=document.getElementById("timer")
+const result=document.getElementById("result")
 
-"Typ snel en nauwkeurig om je snelheid te testen",
-"Blijf gefocust en laat geen fouten voorbij gaan",
-"De vingers bewegen sneller naarmate je oefent",
-"Elke zin die je typt draagt bij aan je score",
-"Probeer langere passages zonder stoppen te typen",
-"Concentratie is belangrijk om een hoge woorden per minuut score te halen",
-"Voel de snelheid en geniet van het typen",
-"Je kunt beginnen met eenvoudige woorden en steeds sneller worden",
-"Herhaal zinnen en verbeter je typvaardigheid",
-"Focus snelheid precisie en doorzettingsvermogen zijn belangrijk",
-"Typ alles correct en houd het tempo hoog",
-"Laat je niet afleiden en blijf geconcentreerd",
-"Langere zinnen helpen je vingers sneller te bewegen",
-"Controleer je fouten en verbeter je nauwkeurigheid",
-"Een goede typist blijft rustig onder druk",
-"Probeer consistent te blijven tijdens de test",
-"Blijf oefenen en je zult merken dat je steeds sneller wordt",
-"Het gaat niet alleen om snelheid maar ook om precisie",
-"Je score laat zien hoeveel woorden je per minuut typt",
-"Geniet van het proces en blijf leren tijdens het typen"
+let sentences=[
 
-];
+"de snelle vos springt over de luie hond",
+"nihat bouwt zijn eigen typetest website",
+"programmeren wordt makkelijker door veel te oefenen",
+"een goede typist kijkt bijna nooit naar het toetsenbord",
+"snel typen is een handige vaardigheid",
+"hoe vaker je oefent hoe sneller je wordt",
+"focus op snelheid maar vergeet de nauwkeurigheid niet",
+"deze typetest lijkt een beetje op tienfastfingers",
+"probeer zoveel mogelijk woorden correct te typen",
+"blijf rustig en typ in een goed tempo",
+"door oefenen kun je elke dag beter worden",
+"dit is een lange zin om je snelheid goed te testen",
+"nihat maakt een luxe typetest met javascript",
+"blijf doorgaan totdat de timer op nul staat"
 
-let currentIndex = 0;
-let currentText = "";
-let timer = 60;
-let timerInterval = null;
-let totalWords = 0;
+]
 
-const display = document.getElementById("textDisplay");
-const input = document.getElementById("textInput");
-const timerDisplay = document.getElementById("timer");
-const scoreboard = document.getElementById("scoreboard");
+let words=sentences.join(" ").split(" ")
 
-function loadText(){
+let index=0
+let time=60
+let timer=null
 
-currentText = texts[currentIndex];
+let correctWords=0
 
-display.innerHTML = currentText;
+function render(){
 
-input.value = "";
+textElement.innerHTML=""
+
+let visibleWords=words.slice(index,index+25)
+
+visibleWords.forEach((word,i)=>{
+
+let span=document.createElement("span")
+
+span.textContent=word+" "
+
+if(i==0)span.classList.add("active")
+
+textElement.appendChild(span)
+
+})
 
 }
 
 function startTimer(){
 
-if(timerInterval) return;
+timer=setInterval(()=>{
 
-timerInterval = setInterval(()=>{
+time--
 
-timer--;
+timerElement.textContent=time
 
-const minutes = String(Math.floor(timer/60)).padStart(2,"0");
-const seconds = String(timer%60).padStart(2,"0");
+if(time<=0){
 
-timerDisplay.textContent = `${minutes}:${seconds}`;
-
-if(timer <= 0){
-
-clearInterval(timerInterval);
-
-finishTest();
+finishTest()
 
 }
 
-},1000);
+},1000)
 
 }
+
+input.addEventListener("keydown",(e)=>{
+
+if(e.key===" "){
+
+e.preventDefault()
+
+let typed=input.value.trim()
+
+let current=words[index]
+
+if(typed===current){
+
+correctWords++
+
+}
+
+index++
+
+if(index>=words.length){
+
+index=0
+}
+
+input.value=""
+
+render()
+
+}
+
+})
 
 function finishTest(){
 
-input.disabled = true;
+clearInterval(timer)
 
-scoreboard.style.display = "block";
+input.disabled=true
 
-scoreboard.textContent =
-`Je hebt ${totalWords} woorden per minuut getypt`;
+let wpm=correctWords
 
-}
+result.innerHTML=`
 
-input.addEventListener("input",()=>{
+<div class="scorebox">
 
-startTimer();
+<h1>🎉 Klaar!</h1>
 
-const value = input.value;
+<h2>${wpm} Woorden per minuut</h2>
 
-let html = "";
+<p>Goed gedaan Nihat!</p>
 
-for(let i=0;i<currentText.length;i++){
+</div>
 
-if(i < value.length){
+`
 
-if(value[i] === currentText[i]){
-
-html += `<span class="highlight">${currentText[i]}</span>`;
-
-}else{
-
-html += `<span class="error">${currentText[i]}</span>`;
+startFireworks()
 
 }
 
-}else{
+function startFireworks(){
 
-html += currentText[i];
+const canvas=document.getElementById("fireworks")
+const ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth
+canvas.height=window.innerHeight
+
+let particles=[]
+
+function create(){
+
+for(let i=0;i<120;i++){
+
+particles.push({
+
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+vx:(Math.random()-0.5)*6,
+vy:(Math.random()-0.5)*6,
+life:100
+
+})
 
 }
 
 }
 
-display.innerHTML = html;
+function update(){
 
-totalWords = value.trim().split(/\s+/).length;
+ctx.clearRect(0,0,canvas.width,canvas.height)
 
-if(value === currentText){
+particles.forEach(p=>{
 
-currentIndex++;
+p.x+=p.vx
+p.y+=p.vy
+p.life--
 
-if(currentIndex >= texts.length){
+ctx.beginPath()
+ctx.arc(p.x,p.y,3,0,Math.PI*2)
+ctx.fillStyle="orange"
+ctx.fill()
 
-currentIndex = 0;
+})
+
+particles=particles.filter(p=>p.life>0)
+
+requestAnimationFrame(update)
 
 }
 
-loadText();
+create()
+update()
 
 }
 
-});
-
-loadText();
+render()
+startTimer()
 
 </script>
 
