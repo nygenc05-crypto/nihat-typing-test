@@ -7,9 +7,8 @@
 <style>
 
 body{
-font-family: Arial, sans-serif;
+font-family:Arial;
 margin:0;
-padding:0;
 height:100vh;
 display:flex;
 justify-content:center;
@@ -26,8 +25,9 @@ background-position:center;
 background:rgba(0,0,0,0.65);
 padding:40px;
 border-radius:20px;
-width:800px;
+width:850px;
 backdrop-filter:blur(6px);
+box-shadow:0 0 40px rgba(0,0,0,0.8);
 }
 
 h1{
@@ -36,25 +36,36 @@ margin-bottom:10px;
 }
 
 #timer{
-font-size:26px;
+font-size:30px;
 margin-bottom:20px;
 color:#00eaff;
 }
 
 #text{
 font-size:24px;
-line-height:40px;
+line-height:42px;
 margin-bottom:25px;
 }
 
 #text span{
-opacity:0.6;
+opacity:0.5;
+margin-right:4px;
 }
 
-#text .active{
+.active{
 opacity:1;
 color:white;
 font-weight:bold;
+}
+
+.correct{
+color:#00ff7b;
+opacity:1;
+}
+
+.wrong{
+color:#ff4b4b;
+opacity:1;
 }
 
 input{
@@ -67,12 +78,31 @@ outline:none;
 }
 
 .scorebox{
-animation:pop 0.8s ease;
+animation:pop 0.7s ease;
+}
+
+.scorebox h1{
+font-size:60px;
+animation:glow 1.5s infinite alternate;
+}
+
+@keyframes glow{
+
+from{
+text-shadow:0 0 10px yellow;
+}
+
+to{
+text-shadow:0 0 40px orange;
+}
+
 }
 
 @keyframes pop{
+
 0%{transform:scale(0.5);opacity:0}
 100%{transform:scale(1);opacity:1}
+
 }
 
 canvas{
@@ -125,7 +155,11 @@ let sentences=[
 "door oefenen kun je elke dag beter worden",
 "dit is een lange zin om je snelheid goed te testen",
 "nihat maakt een luxe typetest met javascript",
-"blijf doorgaan totdat de timer op nul staat"
+"blijf doorgaan totdat de timer op nul staat",
+"typen wordt steeds leuker hoe sneller je wordt",
+"snelle vingers helpen bij een hoge score",
+"oefening maakt een echte typemeester",
+"probeer vandaag je persoonlijk record te breken"
 
 ]
 
@@ -141,13 +175,13 @@ function render(){
 
 textElement.innerHTML=""
 
-let visibleWords=words.slice(index,index+25)
+let visible=words.slice(index,index+30)
 
-visibleWords.forEach((word,i)=>{
+visible.forEach((word,i)=>{
 
 let span=document.createElement("span")
 
-span.textContent=word+" "
+span.textContent=word
 
 if(i==0)span.classList.add("active")
 
@@ -183,11 +217,19 @@ e.preventDefault()
 
 let typed=input.value.trim()
 
-let current=words[index]
+let spans=textElement.querySelectorAll("span")
 
-if(typed===current){
+let currentWord=words[index]
+
+if(typed===currentWord){
 
 correctWords++
+
+spans[0].classList.add("correct")
+
+}else{
+
+spans[0].classList.add("wrong")
 
 }
 
@@ -196,11 +238,12 @@ index++
 if(index>=words.length){
 
 index=0
+
 }
 
 input.value=""
 
-render()
+setTimeout(render,150)
 
 }
 
@@ -218,9 +261,11 @@ result.innerHTML=`
 
 <div class="scorebox">
 
-<h1>🎉 Klaar!</h1>
+<h1>🎉 GEWELDIG!</h1>
 
 <h2>${wpm} Woorden per minuut</h2>
+
+<h3>🔥 Nieuwe snelheid bereikt</h3>
 
 <p>Goed gedaan Nihat!</p>
 
@@ -242,16 +287,16 @@ canvas.height=window.innerHeight
 
 let particles=[]
 
-function create(){
+function createExplosion(x,y){
 
 for(let i=0;i<120;i++){
 
 particles.push({
 
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-vx:(Math.random()-0.5)*6,
-vy:(Math.random()-0.5)*6,
+x:x,
+y:y,
+vx:(Math.random()-0.5)*8,
+vy:(Math.random()-0.5)*8,
 life:100
 
 })
@@ -259,6 +304,15 @@ life:100
 }
 
 }
+
+setInterval(()=>{
+
+createExplosion(
+Math.random()*canvas.width,
+Math.random()*canvas.height
+)
+
+},700)
 
 function update(){
 
@@ -283,7 +337,6 @@ requestAnimationFrame(update)
 
 }
 
-create()
 update()
 
 }
